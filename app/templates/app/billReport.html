@@ -1,0 +1,131 @@
+{% extends "app/layout.html" %}
+{% load widget_tweaks %}
+{% load staticfiles %}
+
+{% block content %}
+
+    <div class="container-fluid">
+
+        <!-- DataTables Example -->
+        <div class="card mb-3">
+            <div class="card-header form-row">
+                <span><i class="fas fa-fw fa-receipt"></i> Monthly Report</span>             
+            </div>
+
+            <div class="card-body">
+                <form action="{% url 'report' %}" method="POST">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <div class="form-row">
+                            <div class="col-sm-2">
+                                <input id="selectedMonth" name="selectedMonth" class="form-control monthpicker" placeholder="Select Month" autocomplete="off" required>
+                            </div>
+
+                            <div class="col-sm-2">
+                                <input value="Submit" type="submit" class="btn btn-primary"/>
+                            </div>
+                            <div class="col-sm-2"></div>
+                            <div class="col-sm-2"></div>
+                            <div class="col-sm-2"></div>
+                            <div class="col-sm-2">
+                                {% if bills %}
+                                    <a href="{% url 'export_report_csv' date %}" class="btn btn-success btn-sm">
+                                        <i class="fas fa-fw fa-file-excel"></i> Download
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+                {% if bills %}
+                    <div  class="row" >
+                        <div class="col-lg-3 col-md-3 col-sm-3">
+                            <b>Total Bils: {{total}}</b> <br />
+                            Paid Bills: {{paid}} <br />
+                            Pending Bills: {{pending}}
+                        </div>
+                        <div class="col-lg-3 col-md-3 col-sm-3">
+                            <b>Month: {{date|date:"F, Y"}}</b><br />
+                            Paid Amount: {{paidAmount}} <br />
+                            Pending Amount: {{pendingAmount}} <br /> <br />
+                        </div>
+                        <div class="col-lg-3 col-md-3 col-sm-3">
+                            <b>Total Tax: {{tax}} </b><br />
+                        </div>
+
+                        
+                    </div>
+                
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Invoice No</th>
+                                    <th>Customer</th>
+                                    <th>Total Amount</th>
+                                    <th>Paid</th>
+                                    <th>Pending</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                    <th>Invoice</th>
+                                </tr>
+                            </thead>
+                            <tfoot>
+                                <tr>
+                                    <th>Invoice No</th>
+                                    <th>Customer</th>
+                                    <th>Total Amount</th>
+                                    <th>Paid</th>
+                                    <th>Pending</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                    <th>Invoice</th>
+                                </tr>
+                            </tfoot>
+                            <tbody>
+                                {% for bill in bills %}
+                                <tr>
+                                    <td>{{bill.invoiceNo}}</td>
+                                    <td>{{bill.customer.name}}</td>
+                                    <td>{{bill.grandTotal}}</td>
+                                    <td>{{bill.paid}}</td>
+                                    <td>{{bill.balance}}</td>
+                                    <td>{% if bill.status == True %} Paid {% else %} Pending {% endif %}</td>
+                                    <td>{{bill.date_created|date:"d-m-y"}}</td>
+                                    <td>
+                                        <a href="{% url 'invoice' bill.id %}" class="btn btn-info btn-sm">
+                                            <i class="fas fa-file-invoice-dollar"></i> Invoice
+                                        </a>
+                                    </td>
+                                </tr>
+
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    
+                    </div>
+                {% elif message %}
+                    <div class="text-center my-auto">
+                        <span>No data available</span>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <!-- /.container-fluid -->
+
+<script src="{% static 'app/vendor/jquery/jquery.ui.monthpicker.js' %}"></script>
+
+<script>
+    $(function () {
+		$('#selectedMonth').monthpicker({
+			yearRange: '2019:c',
+			changeYear:true,
+			maxDate: 0,
+			dateFormat: 'yy-mm-01',
+		});
+	});
+</script>
+
+{% endblock %}

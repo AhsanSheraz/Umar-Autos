@@ -1,0 +1,489 @@
+{% extends "app/layout.html" %}
+{% block content %}
+{% load widget_tweaks %}
+
+<div class="container-fluid">
+    <div class="card mb-3">
+        <div class="card-header">
+            <i class="fas fa-file-invoice-dollar"></i> Invoice
+        </div>
+        <div class="card-body table-responsive">
+            <form action="{% url 'startInvoice' %}" method="POST">
+                {% csrf_token %}
+
+                {% if form1.errors %}
+                    {% for field in form1 %}
+                        {% for error in field.errors %}
+                            <div class="alert alert-danger">
+                                <a href="#" class="close" data-dismiss="alert">&times;</a>
+                                <strong>{{ error|escape }}</strong>
+                            </div>
+                        {% endfor %}
+                    {% endfor %}
+                    {% for error in form1.non_field_errors %}
+                        <div class="alert alert-danger">
+                            <a href="#" class="close" data-dismiss="alert">&times;</a>
+                            <strong>{{ error|escape }}</strong>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                {% if form2.errors %}
+                    {% for field in form2 %}
+                        {% for error in field.errors %}
+                            <div class="alert alert-danger">
+                                <a href="#" class="close" data-dismiss="alert">&times;</a>
+                                <strong>{{ error|escape }}</strong>
+                            </div>
+                        {% endfor %}
+                    {% endfor %}
+                    {% for error in form2.non_field_errors %}
+                        <div class="alert alert-danger">
+                            <a href="#" class="close" data-dismiss="alert">&times;</a>
+                            <strong>{{ error|escape }}</strong>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                {% if form3.errors %}
+                    {% for field in form3 %}
+                        {% for error in field.errors %}
+                            <div class="alert alert-danger">
+                                <a href="#" class="close" data-dismiss="alert">&times;</a>
+                                <strong>{{ error|escape }}</strong>
+                            </div>
+                        {% endfor %}
+                    {% endfor %}
+                    {% for error in form3.non_field_errors %}
+                        <div class="alert alert-danger">
+                            <a href="#" class="close" data-dismiss="alert">&times;</a>
+                            <strong>{{ error|escape }}</strong>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <input type="hidden" value="0" name="customerID" id="customerID">
+                <!-- Text input-->
+                <div class="form-group">
+                    <div class="form-row">
+                        <div class="col-md-2">
+                            {% render_field form1.name class="form-control form-control-sm" placeholder="Name" autocomplete="off" %}
+                        </div>
+                      		
+                        <div class="col-md-2">
+                            {% render_field form1.address class="form-control form-control-sm" placeholder="Address" autocomplete="off" %}
+                        </div>
+
+                        <div class="col-md-2">
+                            {% render_field form1.contact onClick="loadCustSuggestion()" class="form-control form-control-sm" placeholder="Contact" autocomplete="off" %}
+                        </div>
+
+                        <div class="col-md-2">
+                            {% render_field form1.email class="form-control form-control-sm" placeholder="Email" autocomplete="off" %}
+                        </div>
+
+                        <div class="col-md-2">
+                            {% render_field form2.plate class="form-control form-control-sm" placeholder="Plate" autocomplete="off" %}
+                        </div>
+
+                        <div class="col-md-2">
+                            {% render_field form2.model class="form-control form-control-sm" placeholder="Model" autocomplete="off" %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <div class="form-row">
+                        <div class="col-md-2">
+                            {% render_field form2.isAC class="form-control form-control-sm" %}
+                        </div>
+                      		
+                        <div class="col-md-2">
+                            {% render_field form2.transmission class="form-control form-control-sm"%}
+                        </div>
+
+                        <div class="col-md-2">
+                            {% render_field form2.color class="form-control form-control-sm" placeholder="Color" autocomplete="off" %}
+                        </div>
+
+                        <div class="col-md-2">
+                            {% render_field form2.miles class="form-control form-control-sm" placeholder="Miles" autocomplete="off" %}
+                        </div>
+
+                        <div class="col-md-2">
+                            {% render_field form2.motor class="form-control form-control-sm" placeholder="Motor" autocomplete="off" %}
+                        </div>
+
+                        <div class="col-md-2">
+                            {% render_field form2.year class="form-control form-control-sm" placeholder="Year" autocomplete="off" %}
+                        </div>
+                    </div>
+                </div>
+                       
+                <table class="table table-bordered table-striped table-hover js-basic-example dataTable tbl_custom" id="itemsTable">
+                    <thead>
+					    <tr>
+						    <th width="7%">Sr. No.</th>
+                            <th>Parts/Labour</th>
+                            <th width="12%">Rate</th>
+                            <th width="12%">Quantity</th>
+                            <th width="12%">Amount</th>
+                            <th width="7%">Remove</th>
+					    </tr>
+                    </thead>
+                            
+                    <tbody id="table-details">
+                        <tr class="jdr1">
+                            <td align="center">
+                                <span class="sn">1</span>
+                                <input type="hidden" name="itemID[]">
+                                <input type="hidden" name="itemType[]">
+                            </td>
+                            <td>
+                                <input type="text" class="form-control form-control-sm" name="itemName[]" placeholder="Part Name/Labour" autocomplete="off" onKeyPress="loadSuggestion(this, this.parentNode.parentNode)" required>
+                            </td>
+                            <td>
+                                <input type="text" class="form-control form-control-sm" name="salePrice[]" readonly required>
+                            </td>
+                            <td>
+                                <input type="number" class="form-control form-control-sm" name="quantity[]" placeholder="Quantity" onChange="calAmount(this.parentNode.parentNode)" value="1" min="1" required>
+                            </td>
+                            <td>
+                                <input type="text" class="form-control form-control-sm" name="amount[]" readonly>
+                            </td>
+                            <td align="center">
+                                <button type="button" class="btn btn-danger remove-btn btn-sm"><i class="fa fa-minus"></i></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th></th>
+                            <th>
+                                <a href="" class="btn btn-success add-btn btn-sm"><i class="fa fa-plus"></i> Add Row</a>
+                            </th>
+                            <th></th>
+                            <th> Total : </th>
+                            <th> <input type="text" class="form-control form-control-sm" name="subTotal" id="subTotal" readonly> </th>
+                            <th></th>
+                        </tr>
+                    </tfoot>
+                </table>
+               
+                <div class="form-row">
+                    <div class ="col-md-4"></div>
+			        <div class ="col-md-4">
+                        <a href="" onClick="ConfirmBtnClick()" data-toggle="modal" data-target="#confirm" class="btn btn-primary btn-block">Proceed</a>
+			        </div>
+                    <div class ="col-md-4"></div>
+                </div>
+
+                <!-- Confirm Modal-->
+                <div class="modal fade" id="confirm" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content" style="width: 650px; margin: auto; ruby-align:center">
+                      <div class="card-header"> <strong>Payment</strong>
+                         <a href="" class="close btn btn-danger btn-sm" data-dismiss="modal">
+                            <i class="fas fa-times"></i>
+                        </a>
+                      </div>
+                      <div class="modal-body">
+                          <div class="container">
+                              <div class="card card-register mx-auto mt-0">
+                                <div class="card-body">
+                                    <div class="form-row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <div class="row">
+                                                    <label for="id_totalAmount" class="col-sm-5 control-label">Parts Total</label>
+                                                    <div class="col-sm-5">
+                                                        {% render_field form2.partTotal class="form-control form-control-sm" readonly=true %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <div class="row">
+                                                    <label for="id_discount" class="col-sm-5 control-label">Discount (%)</label>
+                                                    <div class="col-sm-5">
+                                                        {% render_field form2.discount class="form-control form-control-sm" onChange="calGrandTotal()" %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <div class="row">
+                                                    <label for="id_totalAmount" class="col-sm-5 control-label">Labour Total</label>
+                                                    <div class="col-sm-5">
+                                                        {% render_field form2.labourTotal class="form-control form-control-sm" readonly=true %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <div class="row">
+                                                    <label for="id_grandTotal" class="col-sm-5 control-label">Grand Total</label>
+                                                    <div class="col-sm-5">
+                                                    {% render_field form2.grandTotal class="form-control form-control-sm" readonly=true %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                     <div class="form-row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <div class="row">
+                                                    <label for="id_totalAmount" class="col-sm-5 control-label">Tax 5% (Parts)</label>
+                                                    <div class="col-sm-5">
+                                                        {% render_field form2.taxAmount class="form-control form-control-sm" readonly=true %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <div class="row">
+                                                    <label for="id_paid" class="col-sm-5 control-label">Payment</label>
+                                                    <div class="col-sm-5">
+                                                    {% render_field form2.paid class="form-control form-control-sm" onChange="calRemaining()" %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                     </div>
+
+                                    <div class="form-row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <div class="row">
+                                                    <label for="id_totalAmount" class="col-sm-5 control-label">Sub Total</label>
+                                                    <div class="col-sm-5">
+                                                    {% render_field form2.totalAmount class="form-control form-control-sm" readonly=true %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <div class="row">
+                                                    <label for="id_balance" class="col-sm-5 control-label">Pending</label>
+                                                    <div class="col-sm-5">
+                                                    {% render_field form2.balance class="form-control form-control-sm" readonly=true %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                     </div>
+
+                                    <div class="form-row">
+                                        <div class ="col-md-3"></div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <div class="row">
+                                                    <label for="id_due_date" class="col-sm-5 control-label">Due Date</label>
+                                                    <div class="col-sm-6">
+                                                    {% render_field form2.due_date class="form-control form-control-sm" placeholder="Select Due Date" autocomplete="off" %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class ="col-md-3"></div>
+                                     </div>
+
+                                    <div class="form-row">
+                                        <div class ="col-md-3"></div>
+			                            <div class ="col-md-6">
+                                            <input type="hidden" name="next" value="/" />
+                                            <input value="Submit" type="submit" class="btn btn-primary btn-block"/>
+                                        </div>
+                                        <div class ="col-md-3"></div>
+                                    </div>
+                                </div>
+                              </div>
+                          </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+			</form>
+        </div>
+    </div>
+ </div>
+
+<script>
+    $(function ()
+    {
+        //$("#id_due_date").val('');
+		$("#id_due_date").datepicker({
+			minDate:0,
+			changeMonth: true,
+            changeYear: true,
+            dateFormat: 'yy-mm-dd',
+        });
+	});
+
+   function calAmount(arg)
+   {
+        var rowid = arg.rowIndex;
+	    var s = document.getElementsByName("salePrice[]");
+	    var q = document.getElementsByName("quantity[]");
+		var p = document.getElementsByName("amount[]");
+			
+	    p[rowid-1].value = (q[rowid-1].value*s[rowid-1].value);
+
+       calTotalAmount();
+    }
+
+    function calTotalAmount()
+    {
+        var p = document.getElementsByName("amount[]");
+        var tot = 0;
+        for (var i = 0; i < p.length; i++)
+        {
+           if (parseInt(p[i].value))
+           {
+               tot += parseInt(p[i].value);
+           }
+		}
+		document.getElementById('subTotal').value = tot;
+    }
+
+    function ConfirmBtnClick()
+    {
+        var itemType = document.getElementsByName("itemType[]");
+		var p = document.getElementsByName("amount[]");
+
+        var partTotal = 0;
+        var labourTotal = 0;
+        var taxAmount = 0;
+        var subTotal = 0;
+        var grandTotal = 0;
+
+       for (var i = 0; i < p.length; i++)
+       {
+           if(parseInt(itemType[i].value) == 1)
+               partTotal += parseInt(p[i].value);
+           else
+               labourTotal += parseInt(p[i].value);
+        }
+        taxAmount = (5 / 100) * parseInt(partTotal);
+        subTotal = partTotal + labourTotal + taxAmount;
+
+        document.getElementById('id_partTotal').value = partTotal;
+        document.getElementById('id_labourTotal').value = labourTotal;
+        document.getElementById('id_taxAmount').value = taxAmount;
+        document.getElementById('id_totalAmount').value = subTotal;
+        
+	    var discount = document.getElementById("id_discount").value;
+		
+        grandTotal = subTotal - subTotal * (discount / 100);
+        document.getElementById('id_grandTotal').value = Math.round(grandTotal);
+    }
+
+    function calGrandTotal()
+    {
+        var grandTotal = 0;
+        var subTotal = parseInt(document.getElementById("id_totalAmount").value);
+        var discount = document.getElementById("id_discount").value;
+		
+        grandTotal = subTotal - subTotal * (discount / 100);
+        document.getElementById('id_grandTotal').value = Math.round(grandTotal);
+    }
+
+    function calRemaining()
+    {
+        var pending = 0;
+		var gtotal = parseInt(document.getElementById('id_grandTotal').value);
+        var paid = parseInt(document.getElementById('id_paid').value);
+
+        if (gtotal > paid)
+            pending = gtotal - paid;
+
+		document.getElementById('id_balance').value = pending;
+	}
+
+    function loadSuggestion(arg, arg1)
+    {
+        setValuesInFields(arg1, '', '', '');
+        calAmount(arg1);
+        
+        $(arg).autocomplete({
+            source: "/api/get_parts/",
+            select: function (event, ui) {
+                setValuesInFields(arg1, ui.item.id, ui.item.price, ui.item.itemType);
+                calAmount(arg1);
+            }
+        });
+    }
+
+    function loadCustSuggestion()
+    {
+        $("input[id=id_contact]").autocomplete({
+            source: "/api/get_customers/",
+            select: function (event, ui) {
+                document.getElementById("customerID").value = ui.item.id;
+                document.getElementById("id_name").value = ui.item.name;
+                document.getElementById("id_address").value = ui.item.address;
+                document.getElementById("id_email").value = ui.item.email;
+            }
+        });
+    }
+
+    function setValuesInFields(arg, id, price, itemType)
+    {
+        var rowid = arg.rowIndex;
+        document.getElementsByName("itemID[]")[rowid-1].value = id;
+        document.getElementsByName("salePrice[]")[rowid - 1].value = price;
+        document.getElementsByName("itemType[]")[rowid-1].value = itemType;
+    }
+
+	function cnfrmOrder()
+	{
+		document.getElementById('gtotal').value = document.getElementById('grandTotal').value;
+	}
+    
+	$(document).ready(function ()
+	{
+		$("body").on('click', '.add-btn', function (e)
+		{
+			e.preventDefault();
+			var $sr = ($(".jdr1").length+1);
+			
+            var $html =
+                '<tr class="jdr1">' +
+			        '<td align="center"><span class="sn">' + $sr + '</span><input type="hidden" name="itemID[]"><input type="hidden" name="itemType[]"> </td>' +
+			        '<td><input type="text" class="form-control form-control-sm" name="itemName[]" autocomplete="off" placeholder="Part Name/Labour" onKeyPress="loadSuggestion(this, this.parentNode.parentNode)" required></td>' +
+			        '<td><input type="text" class="form-control form-control-sm" name="salePrice[]" readonly required>' +
+			        '<td><input type="number" class="form-control form-control-sm" name="quantity[]" placeholder="Quantity" onChange="calAmount(this.parentNode.parentNode)" value="1" min="1" required>' +
+                    '<td><input type="text" class="form-control form-control-sm" name="amount[]" readonly>' +
+                    '<td align="center"><button type="button" class="btn btn-danger remove-btn btn-sm"><i class="fa fa-minus"></i></button></td>' + 
+                '</tr>';
+			$("#table-details").append($html);
+		});
+
+        $('#table-details').on('click', '.remove-btn', function ()
+        {
+            if ($('#table-details tr').length > 1)
+            {
+                $(this).closest('tr').remove();
+
+                $('#table-details tr').each(function (index)
+                {
+                    $(this).find('span.sn').html(index + 1);
+                });
+
+                calTotalAmount();
+            }
+        });
+	});
+</script>
+
+{% endblock %}
