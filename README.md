@@ -5,4 +5,4 @@
 <p>If you want to check each and every module of this project. Simply install python3 and django.</p>
 <br>
 <br>
-<p><b>Note: </b>This project was developed during freelancing.</p>
+
